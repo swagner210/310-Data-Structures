@@ -1,0 +1,142 @@
+
+package data_structures;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+	public class UnorderedArrayPriorityQueue <E extends Comparable<E>> implements PriorityQueue<E> ,Iterable<E>{
+		E[] UA;
+		int counter=0;
+		int position=0;
+	
+	@SuppressWarnings("unchecked")
+	public UnorderedArrayPriorityQueue() {
+		  UA = (E[]) new Comparable[DEFAULT_MAX_CAPACITY];
+	}
+	
+	@SuppressWarnings("unchecked")
+	public UnorderedArrayPriorityQueue(int length) {
+		UA = (E[]) new Comparable[length];
+	}
+	
+	
+	public boolean insert(E object) {
+		if(isFull()) {			//check to see if array is full
+			return false;
+		}
+		else{
+		UA[counter]= object;		//make the counter,which starts at 0 be the insert point
+		counter++;				//increase counter every time this happens
+		return true;
+		}
+	}
+	public E remove() {
+		if(isEmpty())			//check to see if array is empty
+			return null;
+		int index=0;
+		E hipri = UA[0];
+		for(int i=1;i<counter;i++) {
+			if(UA[i].compareTo(hipri)<0) {	
+				index=i;
+				hipri=UA[index];	
+			}
+		}
+		for(int i=index;i<counter-1;i++) {
+			UA[i]=UA[i+1];
+		}
+		counter--;
+		return hipri;		
+	}
+
+
+	public boolean delete(E obj) {
+		if(isEmpty())
+			return false;
+
+		while(contains(obj)) {
+			int position=0;
+			for(int i=0;i<counter;i++) {
+					if(UA[i].compareTo(obj)==0) {
+						position=i;	
+					}			
+			}
+			while(UA[position].compareTo(obj)==0) {
+				for(int i = position;i < counter -1; i++) {
+					UA[i] = UA[i + 1]; 
+				}
+				counter--;
+				if(position!=0) {
+					position--;}
+			}
+		}
+		return true;
+	}
+	
+	public E peek() {
+		if(isEmpty())
+			return null;
+		int index=0;
+		E hipri = UA[0];
+		for(int i=1;i<counter;i++) {
+			if(UA[i].compareTo(hipri)<0) {
+				index=i;
+				hipri=UA[index];	
+			}
+		}
+		return hipri;		
+	}
+
+	public boolean contains(E obj) {
+		for(int i=0;i<counter;i++) {
+			if(UA[i].compareTo(obj) == 0)
+				return true;
+		}
+		return false;
+		}
+	
+	public int size() {
+		return counter;
+	}
+
+	public void clear() {
+		for(position=0;position<counter;position++) {
+			UA[position]=null;
+		counter=0;
+		}
+	}
+	public boolean isEmpty() {
+		if(counter == 0) {
+			return true;
+		}else {
+		return false;}
+	}
+
+	public boolean isFull() {
+		if(counter==UA.length) {
+			return true;
+		}else {
+			return false;}	
+	}
+
+	public Iterator<E> iterator() {
+		return new Ihelp();
+	}
+
+	public class Ihelp<E> implements Iterator{
+		int index=0;
+		public boolean hasNext() {
+			return (index<counter);
+		}
+		public E next() {
+			if(!hasNext()) {
+				throw new NoSuchElementException();
+			}
+			return (E) UA[index++];
+		}
+		
+	}
+
+	
+
+
+}
+	
