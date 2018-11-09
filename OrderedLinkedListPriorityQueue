@@ -1,0 +1,176 @@
+package data_structures;
+
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class OrderedLinkedListPriorityQueue<E extends Comparable<E>> implements PriorityQueue<E>, Iterable<E> {
+
+	public class Node<E> {
+		E data;
+		Node<E> next;
+
+		public Node(E obj) {
+			data = obj;
+			next = null;
+		}
+	}
+	Node<E> head;
+	int numitems;
+	
+	public OrderedLinkedListPriorityQueue() {
+		head = null;
+		numitems = 0;
+		
+	}
+	public boolean insert(E object) {
+		Node<E> newNode = new Node<E>(object);
+		if (isEmpty()) { 			// If List is Empty
+			head = newNode;
+			numitems++;
+			return true;
+		}
+		
+		Node<E> prev = null;
+		Node<E> curr = head;
+
+		while (curr != null && (object).compareTo(curr.data) >= 0) { // while curr is not null and less than the object												
+			prev = curr; 					// find the spot for the placement
+			curr = curr.next;
+		}
+		if (prev == null) { 					// inserting First in list
+			newNode.next = head;
+			head = newNode;
+			numitems++;
+			
+		} else {
+			if (curr == null) { 				// Goes at very back
+				prev.next = newNode;	
+				numitems++;
+			
+		} else {							// Somewhere in the middle
+			newNode.next = curr;
+			prev.next = newNode;
+			numitems++;
+			
+			}
+		}
+		return true;
+	}
+	
+	public E remove() {
+		if (isEmpty()) {
+			return null;
+		}
+		Node<E> tmp;
+		
+		if(numitems==1)				//only one thing,make head null to remove
+		{
+			tmp=head;			//make temporary pointer to keep data of what was being deleted
+			head=null;
+			numitems--;
+			return tmp.data;
+		}
+		tmp = head;
+		head = head.next;
+		numitems--;
+		return tmp.data;
+	}
+
+	public boolean delete(E obj) {
+		if (!contains(obj)) {
+			return false;
+		}
+		
+		Node<E> prev = null;
+		Node<E> curr = head;
+
+		while ((curr != null) && ((obj).compareTo(curr.data) != 0)) {//find beginning of where you will delete
+			prev = curr;
+			curr = curr.next;
+		}
+		while((curr != null) && (obj).compareTo(curr.data)==0) {//find end of where you will delete(gap)
+			curr=curr.next;
+			numitems--;
+		}
+		if (prev == null) {		
+			head=curr;
+		
+		} else {
+			prev.next=curr;	
+		}
+		return true;
+	}
+
+	public E peek() {
+		if (isEmpty()) {
+			return null;
+		}
+		return head.data;		//should be first item in list
+	}
+
+	public boolean contains(E obj) {
+		if (isEmpty()) {
+			return false;
+		}
+		Node<E> tmp;
+		tmp = head;
+		
+		while (tmp != null) {		//go through list till you find the item
+			if (tmp.data.compareTo(obj) == 0) {
+				return true;
+			}
+			tmp = tmp.next;
+		}
+		return false;
+	}
+
+	public int size() {
+		return numitems;
+	}
+
+	public void clear() {
+		head = null;
+		
+	}
+
+	public boolean isEmpty() {
+		return head==null;
+	}
+
+	public boolean isFull() {
+		return false;
+	}
+
+	public Iterator<E> iterator() {
+
+		return new LLIteratorHelper();
+	}
+
+	private class LLIteratorHelper implements Iterator<E> {
+		Node<E> curr;
+		
+		public LLIteratorHelper() {
+			curr=head;
+		}
+		
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	
+
+		public boolean hasNext() {
+
+			return curr!=null;
+		}
+
+		public E next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+			E temp=curr.data;
+			curr=curr.next;
+			return temp;
+		}
+	}
+}
