@@ -1,0 +1,201 @@
+package data_structures;
+
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class BinaryHeapPriorityQueue<E extends Comparable<E>> implements PriorityQueue<E>, Iterable<E> {
+
+	Wrapper<E>[] BH;
+
+	int numitems;
+	long entryNumber, modcounter;
+
+	public BinaryHeapPriorityQueue() {
+		this(DEFAULT_MAX_CAPACITY);
+	}
+
+	@SuppressWarnings("unchecked")
+	public BinaryHeapPriorityQueue(int length) {
+		numitems = 0;
+		entryNumber = 0;
+		BH = new Wrapper[length];
+	}
+
+	@SuppressWarnings("hiding")
+	protected class Wrapper<E extends Comparable<E>> implements Comparable<Wrapper<E>> {
+		long number;
+		E data;
+
+		public Wrapper(E obj) {
+			number = entryNumber++;
+			data = obj;
+		}
+
+		public int compareTo(Wrapper<E> object) {
+			if (((Comparable<E>) data).compareTo(object.data) == 0) {
+
+				return (int) (number - object.number);
+			}
+			return ((Comparable<E>) data).compareTo(object.data);
+		}
+
+	}
+
+	public boolean insert(E object) {
+		if (isFull()) {
+			return false;
+		}
+		BH[numitems] = new Wrapper<E>(object);
+		modcounter++;
+		numitems++;
+		trickleup(numitems-1);
+		return true;
+	}
+
+
+	
+	private void trickleup(int Index) {
+		
+		int ParentIndex = (Index - 1) >> 1;
+		Wrapper<E> value = BH[Index];
+		while ((ParentIndex >= 0) && (value.compareTo(BH[ParentIndex]) < 0)) {
+			BH[Index] = BH[ParentIndex];
+			Index = ParentIndex;
+			ParentIndex = (ParentIndex - 1) >> 1;
+		}
+		BH[Index] = value;
+	}
+
+	private void trickledown(int index) {
+		int child = nextChild(index);
+		while ((child != -1) && (BH[index].compareTo(BH[child]) < 0) && (BH[child].compareTo(BH[numitems - 1]) < 0)) {
+			BH[index] = BH[child];
+			index = child;
+			child = nextChild(index);
+
+		}
+		BH[index] = BH[numitems - 1];
+	}
+
+	private int nextChild(int curr) {
+		int left = (curr << 1) + 1;
+		int right = left + 1;
+
+		if (right < numitems) {
+			if (BH[left].compareTo(BH[right]) < 0) {
+				return left;
+			}
+			return right;
+		}
+		if (left < numitems) {
+			return left;
+		}
+		return -1;
+	}
+
+	public E remove() {
+		if (isEmpty()) {
+			return null;
+		}
+		E tmp = BH[0].data;
+		trickledown(0);
+		modcounter++;
+		numitems--;
+		return tmp;
+	}
+
+	public boolean delete(E obj) {
+		if (isEmpty()) {
+			return false;
+		}
+		
+		for(int i=0;i<numitems;i++) {
+			if((BH[i].data).compareTo(obj)==0) {
+				trickledown(i);
+				trickleup(i);
+				numitems--;
+				modcounter++;
+				i--;
+			}
+		}
+		return true;
+	}
+
+	public E peek() {
+		if (isEmpty()) {
+			return null;
+		}
+		return BH[0].data;
+	}
+
+	public boolean contains(E obj) {
+		if (isEmpty()) {
+			return false;
+		}
+		for (int i = 0; i < numitems; i++) {
+			if (BH[i].data.compareTo(obj) == 0)
+				return true;
+		}
+		return false;
+	}
+
+	public int size() {
+		return numitems;
+	}
+
+	public void clear() {
+		int here;
+		for (here = 0; here < BH.length; here++)
+			BH[here] = null;
+		numitems = 0;
+		
+
+	}
+
+	public boolean isEmpty() {
+		return numitems == 0;
+	}
+
+	public boolean isFull() {
+		if (numitems == BH.length) {
+			return true;
+		}
+		return false;
+	}
+
+	public Iterator<E> iterator() {
+		return new Ihelp();
+	}
+
+	public class Ihelp implements Iterator<E> {
+		int index;
+		long counter;
+
+		public Ihelp() {
+			index = 0;
+			counter = modcounter;
+		}
+
+		public boolean hasNext() {
+			if (modcounter != counter) {
+				throw new ConcurrentModificationException();
+
+			}
+			return (index < numitems);
+		}
+
+		public E next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+			return BH[index++].data;
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+
+	}
+
+}
