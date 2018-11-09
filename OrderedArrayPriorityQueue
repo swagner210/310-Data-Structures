@@ -1,0 +1,164 @@
+
+package data_structures;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+
+public class OrderedArrayPriorityQueue <E extends Comparable<E>> implements PriorityQueue<E>,Iterable<E>{
+
+	E[] OA;
+	int counter;
+	int position;
+	
+	
+	@SuppressWarnings("unchecked")
+	public OrderedArrayPriorityQueue() {
+		  OA = (E[]) new Comparable[DEFAULT_MAX_CAPACITY];
+	}
+	
+	@SuppressWarnings("unchecked")
+	public OrderedArrayPriorityQueue(int length) {
+		OA = (E[]) new Comparable[length];
+	}
+	
+		public boolean insert(E object) {
+			if(isFull())
+				return false;
+			int here = InsertionHelp(object,0, counter-1);
+			for(int i=counter-1;i>=here;i--) {
+				OA[i+1]=OA[i];
+			}
+			OA[here]=object;
+			counter++;
+			return true;	
+	}
+		
+		private int InsertionHelp(E object,int lo,int hi) {
+			if(hi<lo) {
+				return lo;
+			}
+			int mid= (lo+hi)/2;
+			if( object.compareTo(OA[mid])>=0) {
+				return InsertionHelp(object,lo,mid-1); 
+			}//Go left
+				return InsertionHelp(object,mid+1,hi);	//Go Right	
+	}
+		
+		public E remove() {
+			if(isEmpty()) {
+				return null;
+			}
+			else {
+				E objneed=OA[counter-1];
+				counter--;
+				return objneed;
+			}
+		}
+		public boolean delete(E obj) {
+			if(isEmpty()) {
+				return false;
+			}
+			if(!contains(obj)) {
+				return false;
+			}
+			int position = binarysearch(0,counter - 1, obj);
+			while(OA[position].compareTo(obj)==0) {
+				for(int i = position;i < counter -1; i++) {
+						OA[i] = OA[i + 1]; 
+				}
+				counter--;
+				if(position!=0) {
+					position--;	
+				}	
+			}	
+			return true;
+		}
+		
+		private 	int binarysearch(int low,int high,E key) {
+			if(low>high) {
+				if(key.compareTo(OA[high])==0) {
+					return high;
+				}
+			}
+			int mid=(low+high)/2;
+			if(OA[mid].compareTo(key)>=0) {
+				low=mid+1;
+				return binarysearch(low,high,key);
+			}
+			high=mid-1;
+			return binarysearch(low,high,key);
+		}
+		
+		
+		
+	
+		
+		public E peek() {
+			if(isEmpty()) {
+				return null;}	
+			else {
+			return OA[counter-1];
+			}
+		}
+			
+		
+		public boolean contains(E obj) {
+			int position = binarysearch(0, counter - 1, obj);
+			if(position == -1) {
+				return false;
+			}	
+			if(OA[position].compareTo(obj) == 0) {
+				return true;
+			}
+			return false;
+		}
+		
+		public int size() {
+			return counter;
+		}
+		public void clear() {
+			for(position=0;position<OA.length;position++)
+				OA[position]=null;
+			counter=0;
+				}
+		
+		
+		public boolean isEmpty() {
+			if(counter == 0) {
+				return true;
+			}
+			return false;
+		}
+		public boolean isFull() {
+			if(counter==OA.length) {
+				return true;
+			}
+			else {
+				return false;	
+			}
+		}
+		
+		public Iterator<E> iterator() {
+			return new Ihelp();
+
+		}
+	
+		public class Ihelp<E> implements Iterator{
+			int index=0;
+			
+		public boolean hasNext() {
+			return (index<counter);
+			}
+		public E next() {
+			if(!hasNext()) {
+				throw new NoSuchElementException();
+			}
+			return (E) OA[index++];
+		}
+			
+}
+
+	
+	}
+
+
